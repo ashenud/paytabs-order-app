@@ -9,7 +9,7 @@ services:
     depends_on:
       - paytabs-mysql
     volumes:
-      - ./:/var/www/html/
+      - ./:/var/www/html
     networks:
       - paytabs-network-link
 
