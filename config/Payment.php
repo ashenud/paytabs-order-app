@@ -6,7 +6,9 @@ class Payment extends Database
 {
     protected string $table = 'payments';
 
-    public function create($orderId, $status = 'initiated', $request = null, $response = null): int
+    public const STATUS_INITIATED = 'initiated';
+
+    public function create($orderId, $status = self::STATUS_INITIATED, $request = null, $response = null): int
     {
         $stmt = $this->connection->prepare("
             INSERT INTO {$this->table} (order_id, status, payment_request, payment_response) 
@@ -21,8 +23,8 @@ class Payment extends Database
     public function updateStatus($id, $status, $response = null): bool
     {
         $stmt = $this->connection->prepare("
-            UPDATE {$this->table} 
-            SET status = ?, payment_response = ? 
+            UPDATE {$this->table}
+            SET status = ?, payment_response = ?
             WHERE id = ?
         ");
         $stmt->bind_param("ssi", $status, $response, $id);
@@ -54,5 +56,17 @@ class Payment extends Database
         $result = $this->connection->query("SELECT * FROM {$this->table} ORDER BY created_at DESC");
 
         return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function initiate(int $orderId, string $paymentRequestJson): int
+    {
+        $stmt = $this->connection->prepare("
+            INSERT INTO {$this->table} (order_id, status, payment_request)
+            VALUES (?, self::STATUS_INITIATED, ?)
+        ");
+        $stmt->bind_param("is", $orderId, $paymentRequestJson);
+        $stmt->execute();
+
+        return $this->connection->insert_id;
     }
 }
