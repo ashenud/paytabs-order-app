@@ -3,7 +3,7 @@ USE paytabs;
 -- Drop existing tables (optional for reset)
 DROP TABLE IF EXISTS refunds;
 DROP TABLE IF EXISTS payments;
-DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS order_products;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS products;
 
@@ -25,7 +25,7 @@ CREATE TABLE orders
 );
 
 -- Order Items Table (many-to-many relationship between orders and products)
-CREATE TABLE order_items
+CREATE TABLE order_products
 (
     id         INT AUTO_INCREMENT PRIMARY KEY,
     order_id   INT NOT NULL,
