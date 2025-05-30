@@ -14,9 +14,11 @@ services:
       - paytabs-network-link
 
   paytabs-mysql:
-    image: mysql:8.0
+    image: mysql:5.7
     container_name: paytabs_mysql
     restart: unless-stopped
+    ports:
+      - "3306:3306"
     environment:
       MYSQL_DATABASE: paytabs
       MYSQL_USER: paytabs_user
