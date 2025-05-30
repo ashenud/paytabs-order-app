@@ -12,15 +12,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || ($_POST['action'] ?? '') !== 'gener
     exit;
 }
 
-if (!isset($_SESSION['checkout'])) {
+if (empty($_SESSION['checkout']) === true) {
     http_response_code(403);
     echo json_encode(['error' => 'Session expired. Please create order again.']);
     exit;
 }
 
-$checkout = $_SESSION['checkout'];
-$orderId = $checkout['order_id'];
-$total = round($checkout['total'], 2);
+$orderId = $_POST['order_id'];
+$total = round($_POST['total'], 2);
+$customerDetails = $_POST['customer_details'];
+
+unset($customerDetails['shipping_method']);
 
 $serverKey = PAYTABS_INTEGRATION_KEY;
 $profileId = PAYTABS_PROFILE_ID;
@@ -34,19 +36,10 @@ $payload = [
     "cart_description" => "Order Payment for Order #$orderId",
     "cart_currency" => "EGP",
     "cart_amount" => $total,
-    "callback" => "http://localhost:8080/pages/payment-callback.php",
-    "return" => "http://localhost:8080/pages/payment-result.php",
+    "callback" => "https://dfbf-112-134-175-3.ngrok-free.app/pages/payment-callback.php",
+    "return" => "https://dfbf-112-134-175-3.ngrok-free.app/pages/payment-result.php",
     "hide_shipping" => true,
-    "customer_details" => [
-        "name" => "Ashen Udithamal",
-        "email" => "udithamal.lk@gmail.com",
-        "phone" => "+94777462035",
-        "street1" => "N/A",
-        "city" => "N/A",
-        "state" => "N/A",
-        "country" => "AE",
-        "zip" => "00000"
-    ]
+    "customer_details" => $customerDetails
 ];
 
 $ch = curl_init("https://secure-egypt.paytabs.com/payment/request");

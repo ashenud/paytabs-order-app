@@ -4,18 +4,62 @@ require_once __DIR__ . '/../config/Order.php';
 
 session_start();
 
-if (!isset($_SESSION['checkout'])) {
+if (
+        empty($_SESSION['checkout']) ||
+        isset($_POST['order_id']) === false ||
+        is_numeric($_POST['order_id']) === false
+) {
     header("Location: create-orders.php");
     exit;
 }
 
-$checkout = $_SESSION['checkout'];
-$orderId = $checkout['order_id'];
-$total = $checkout['total'];
-
+$orderModel = new Order();
 $paymentModel = new Payment();
-$paymentData = $paymentModel->initiate($orderId, json_encode($checkout));
 
+$orderId = $_POST['order_id'];
+
+$orderProducts = $orderModel->getOrderProducts($orderId);
+
+$grandTotal = 0;
+$checkoutItems = [];
+
+foreach ($orderProducts as $item) {
+    $productId = $item['product_id'];
+    $productPrice = $item['product_price'];
+    $quantity = $item['quantity'];
+
+    $lineTotal = $productPrice * $quantity;
+    $grandTotal += $lineTotal;
+
+    $checkoutItems[] = [
+        'product_id' => $productId,
+        'name'       => $item['product_name'],
+        'quantity'   => $quantity,
+        'price'      => $productPrice,
+        'subtotal'   => $lineTotal
+    ];
+}
+
+$customerDetails = [
+    'name'             => $_POST['name'],
+    'email'            => $_POST['email'],
+    'phone'            => $_POST['phone'],
+    'shipping_method'  => $_POST['shipping_method'],
+    "street1"          => $_POST['address'] ?? "N/A",
+    "city"             => $_POST['address'] ?? "N/A",
+    "state"            => "N/A",
+    "country"          => "EG",
+    "zip"              => $_POST['address'] ?? "N/A",
+];
+
+$orderDetails = [
+    'order_id'        => $orderId,
+    'items'           => $checkoutItems,
+    'total'           => $grandTotal,
+    'customerDetails' => $customerDetails,
+];
+
+$paymentData = $paymentModel->initiate($orderId, json_encode($orderDetails));
 ?>
 
 <!DOCTYPE html>
@@ -42,7 +86,10 @@ $paymentData = $paymentModel->initiate($orderId, json_encode($checkout));
             url: "../paytabs/iframe-token.php",
             method: "POST",
             data: {
-                action: "generate_token"
+                action: "generate_token",
+                order_id: <?= $orderId ?>,
+                total: <?= $grandTotal ?>,
+                customer_details: <?= json_encode($customerDetails) ?>,
             },
             success: function (res) {
                 if (res && res.redirect_url) {

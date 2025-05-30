@@ -40,17 +40,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <tr>
                 <th>Select</th>
                 <th>Product</th>
-                <th>Price (USD)</th>
+                <th>Price (EGP)</th>
                 <th>Quantity</th>
             </tr>
             </thead>
             <tbody>
             <?php foreach ($products as $p): ?>
                 <tr>
-                    <td><input type="checkbox" name="product[]" value="<?= $p['id'] ?>"></td>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="product[]" value="<?= $p['id'] ?>">
+                        </label>
+                    </td>
                     <td><?= htmlspecialchars($p['name']) ?></td>
                     <td><?= number_format($p['price'], 2) ?></td>
-                    <td><input type="number" class="form-control" name="quantity[<?= $p['id'] ?>]" value="1" min="1" max="10"></td>
+                    <td>
+                        <label>
+                            <input
+                                type="number"
+                                class="form-control"
+                                name="quantity[<?= $p['id'] ?>]"
+                                value="1"
+                                min="1"
+                                max="10"
+                            >
+                        </label>
+                    </td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
@@ -62,8 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php include('../inc/footer.php'); ?>
 
 <script>
-    $(document).ready(function() {
-        $('form').on('submit', function(e) {
+    $(document).ready(function () {
+        $('form').on('submit', function (e) {
             let checked = $('input[name="product[]"]:checked').length;
 
             if (checked === 0) {

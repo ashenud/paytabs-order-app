@@ -24,7 +24,6 @@ $orders = $orderModel->getAll();
                 <thead class="thead-dark">
                 <tr>
                     <th>#ID</th>
-                    <th>Customer Name</th>
                     <th>Shipping Type</th>
                     <th>Status</th>
                     <th>Created At</th>
@@ -35,12 +34,11 @@ $orders = $orderModel->getAll();
                 <?php foreach ($orders as $order): ?>
                     <tr>
                         <td><?= htmlspecialchars($order['id']) ?></td>
-                        <td><?= htmlspecialchars($order['customer_name']) ?></td>
-                        <td><?= htmlspecialchars($order['shipping_type']) ?></td>
+                        <td><?= htmlspecialchars($order['shipping_method']) ?></td>
                         <td><?= htmlspecialchars($order['status']) ?></td>
                         <td><?= htmlspecialchars($order['created_at']) ?></td>
                         <td>
-                            <a href="order-details.php?id=<?= $order['id'] ?>" class="btn btn-sm btn-primary">View</a>
+                            <a href="pages/order-details.php?id=<?= $order['id'] ?>" class="btn btn-sm btn-primary">View</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

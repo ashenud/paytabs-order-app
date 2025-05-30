@@ -20,35 +20,7 @@ if (empty($orderProducts)) {
     exit;
 }
 
-$productIds = array_column($orderProducts, 'product_id');
-
-$grandTotal = 0;
-$checkoutItems = [];
-
-foreach ($orderProducts as $item) {
-    $productId = $item['product_id'];
-    $productPrice = $item['product_price'];
-    $quantity = $item['quantity'];
-
-        $lineTotal = $productPrice * $quantity;
-        $grandTotal += $lineTotal;
-
-        $checkoutItems[] = [
-            'product_id' => $productId,
-            'name'       => $item['product_name'],
-            'quantity'   => $quantity,
-            'price'      => $productPrice,
-            'subtotal'   => $lineTotal
-        ];
-
-}
-
-// Save to session for use in PayTabs or confirmation page
-$_SESSION['checkout'] = [
-    'order_id' => $orderId,
-    'items'    => $checkoutItems,
-    'total'    => $grandTotal
-];
+$_SESSION['checkout'] = true;
 ?>
 
 <!DOCTYPE html>
@@ -67,31 +39,36 @@ $_SESSION['checkout'] = [
         <thead class="thead-light">
         <tr>
             <th>Product</th>
-            <th>Price (USD)</th>
+            <th>Price (EGP)</th>
             <th>Quantity</th>
             <th>Subtotal</th>
         </tr>
         </thead>
         <tbody>
+        <?php $grandTotal = 0; ?>
         <?php foreach ($orderProducts as $item): ?>
+            <?php
+                $lineTotal = $item['product_price'] * $item['quantity'];
+                $grandTotal += $lineTotal;
+            ?>
             <tr>
                 <td><?= htmlspecialchars($item['product_name']) ?></td>
                 <td><?= number_format($item['product_price'], 2) ?></td>
                 <td><?= $item['quantity'] ?></td>
-                <td><?= number_format($item['product_price'] * $item['quantity'], 2) ?></td>
+                <td><?= number_format($lineTotal, 2) ?></td>
             </tr>
         <?php endforeach; ?>
         </tbody>
         <tfoot>
         <tr>
             <th colspan="3" class="text-end">Total</th>
-            <th><?= number_format($grandTotal, 2) ?> USD</th>
+            <th><?= number_format($grandTotal, 2) ?> EGP</th>
         </tr>
         </tfoot>
     </table>
 
     <!-- Simulated Checkout Button -->
-    <form action="pay.php" method="POST" id="checkout-form">
+    <form action="payments.php" method="POST" id="checkout-form">
         <input type="hidden" name="action" value="pay">
 
         <h4 class="mt-4">Customer Information</h4>
@@ -129,7 +106,7 @@ $_SESSION['checkout'] = [
         <div id="shipping-address" class="mt-3 d-none">
             <h5>Shipping Address</h5>
             <div class="mb-2">
-                <label for="address">Address *</label>
+                <label for="address">Street Address *</label>
                 <label>
                     <input type="text" class="form-control" name="address">
                 </label>
@@ -154,7 +131,6 @@ $_SESSION['checkout'] = [
 
         <button type="submit" class="btn btn-success mt-4">Proceed to PayTabs Payment</button>
     </form>
-
 </div>
 
 <?php include('../inc/footer.php'); ?>
