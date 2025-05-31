@@ -11,8 +11,8 @@ This is a simple PHP-based order and payment management system integrated with P
 🚀 Getting Started
 1. Clone the Repo
     ```
-    git clone https://github.com/your-username/paytabs-php-project.git
-    cd paytabs-php-project
+    git clone https://github.com/ashenud/paytabs-order-app.git
+    cd paytabs-order-app
     ```
 2. Create .env File
     ```
